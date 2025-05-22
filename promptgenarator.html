@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Prompts JSON Profesional</title>
+<style>
+  :root {
+    --primary-color: #007AFF; /* Un azul vibrante como acento */
+    --primary-hover-color: #0056b3;
+    --background-color: #f4f7f9; /* Gris muy claro para el fondo */
+    --card-background-color: #ffffff;
+    --text-color: #333;
+    --label-color: #555;
+    --border-color: #d1d9e0; /* Borde más suave para inputs */
+    --input-background: #ffffff;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --shadow-hover-color: rgba(0, 0, 0, 0.1);
+    --border-radius: 8px; /* Bordes redondeados más pronunciados */
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  }
+
+  body {
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 1.5rem;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  fieldset {
+    background-color: var(--card-background-color);
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: box-shadow 0.3s ease;
+  }
+
+  fieldset:hover {
+    box-shadow: 0 6px 16px var(--shadow-hover-color);
+  }
+
+  legend {
+    padding: 0.3rem 0.8rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    background-color: var(--card-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: calc(var(--border-radius) / 2);
+    margin-left: 1rem; /* Para que no esté pegado al borde del fieldset */
+    box-shadow: 0 2px 4px var(--shadow-color);
+  }
+
+  label {
+    display: block;
+    margin: 0.8rem 0 0.3rem;
+    color: var(--label-color);
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  select,
+  textarea,
+  input[type="text"],
+  input[type="number"] {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+    background-color: var(--input-background);
+    color: var(--text-color);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  select:focus,
+  textarea:focus,
+  input[type="text"]:focus,
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.25);
+  }
+
+  select {
+    appearance: none; /* Quita la flecha por defecto */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5z%22%20fill%3D%22%23555%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    padding-right: 2.5rem; /* Espacio para la nueva flecha */
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem 1rem;
+    align-items: center;
+  }
+  .checkbox-grid label {
+    display: flex; /* Alinea checkbox y texto */
+    align-items: center;
+    margin: 0.2rem 0;
+    font-weight: normal;
+    font-size: 0.95rem;
+  }
+  .checkbox-grid input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.5rem;
+    accent-color: var(--primary-color); /* Colorea el checkbox cuando está activo */
+    transform: scale(1.1);
+  }
+
+
+  button {
+    cursor: pointer;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 122, 255, 0.2);
+  }
+
+  button:hover {
+    background-color: var(--primary-hover-color);
+    box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3);
+    transform: translateY(-2px);
+  }
+  button:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 5px rgba(0, 122, 255, 0.2);
+  }
+
+  #output {
+    height: 280px;
+    white-space: pre-wrap;
+    background-color: #e9ecef; /* Un fondo ligeramente diferente para el output */
+    word-break: break-all;
+    font-size: 0.85rem;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-top: 1.5rem;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  textarea#promptNegativo,
+  textarea#sujetoPrincipal,
+  textarea#artistasReferencia {
+    min-height: 80px; /* Mínima altura, puede crecer */
+  }
+
+  .aspect-ratio-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #aspectRatioPreviewContainer {
+    width: 55px;
+    height: 55px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e9ecef;
+    border-radius: var(--border-radius);
+    padding: 5px;
+    flex-shrink: 0;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+  }
+  #aspectRatioShape {
+    background-color: var(--primary-color);
+    opacity: 0.7;
+    transition: width 0.2s ease-out, height 0.2s ease-out;
+    border-radius: calc(var(--border-radius) / 3);
+  }
+
+  @media (min-width: 600px) {
+    body {
+      padding: 2rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+    }
+    .btn-group {
+      flex-direction: row;
+      gap: 1rem;
+    }
+    .btn-group button {
+        flex-grow: 1; /* Para que ocupen espacio similar si hay dos */
+    }
+    .btn-group button:only-child {
+        flex-grow: 0; /* Si solo hay un botón, no lo estira */
+    }
+  }
+
+  @media (min-width: 992px) { /* Ajustes para pantallas más grandes */
+    .row {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+    h1 {
+        font-size: 2.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>Generador de Prompts JSON Profesional</h1>
+
+<form id="promptForm">
+
+  <fieldset>
+    <legend>Descripción Principal</legend>
+    <label for="sujetoPrincipal">Sujeto o descripción principal de la imagen:</label>
+    <textarea id="sujetoPrincipal" placeholder="Ej: un dragón majestuoso, un bosque encantado..."></textarea>
+  </fieldset>
+
+  <div class="row">
+    <fieldset>
+      <legend>Estilo Artístico</legend>
+      <label for="estilo">Elige estilo:</label>
+      <select id="estilo">
+        <option value="">(Ninguno)</option>
+        <option>Render 3D Fotorrealista</option>
+        <option>Ilustración Anime</option>
+        <option>Render Low-poly</option>
+        <option>Pixel Art</option>
+        <option>Pintura al Óleo</option>
+        <option>Ilustración Acuarela</option>
+        <option>Arte Conceptual Cyberpunk</option>
+        <option>Cinemático Noir</option>
+        <option>Dibujo Animado (Cell-shaded)</option>
+        <option>Geométrico Abstracto</option>
+        <option>Fotografía Vintage</option>
+        <option>Arte Barroco</option>
+        <option>Impresionismo</option>
+        <option>Surrealismo</option>
+        <option>Steampunk</option>
+        <option>Art Deco</option>
+        <option>Arte Digital Mate</option>
+        <option>Boceto a Lápiz</option>
+        <option>Tinta China</option>
+      </select>
+    </fieldset>
+
+    <fieldset>
+      <legend>Material</legend>
+      <label for="material">Elige material:</label>
+      <select id="material">
+        <option value="">(Ninguno)</option>
+        <option>Vidrio</option><option>Metal</option><option>Madera</option><option>Mármol</option>
+        <option>Plástico</option><option>Tela</option><option>Piedra</option><option>Hielo</option>
+        <option>Cerámica</option><option>Fibra de Carbono</option><option>Oro</option><option>Plata</option>
+        <option>Bronce</option><option>Cuero</option><option>Goma</option><option>Terciopelo</option>
+        <option>Seda</option><option>Obsidiana</option><option>Cromo</option>
+      </select>
+    </fieldset>
+
+    <fieldset>
+      <legend>Textura Superficie</legend>
+      <label for="texturaSuperficie">Elige textura:</label>
+      <select id="texturaSuperficie">
+        <option value="">(Ninguno)</option>
+        <option>Pulido Suave</option><option>Mate Rugoso</option><option>Cepillado</option><option>Grabado</option>
+        <option>Agrietado</option><option>Brillante</option><option>Granulado</option><option>Estampado</option>
+        <option>Acanalado</option><option>Tejido</option><option>Escamoso</option><option>Poroso</option>
+        <option>Metálico Reflectante</option><option>Translúcido</option><option>Iridiscente</option>
+      </select>
+    </fieldset>
+  </div>
+
+  <div class="row">
+    <fieldset>
+      <legend>Composición</legend>
+      <label for="tipoPlano">Tipo de plano:</label>
+      <select id="tipoPlano">
+        <option value="">(Ninguno)</option>
+        <option>Primerísimo Primer Plano (Extreme Close-Up)</option>
+        <option>Primer Plano (Close-Up)</option>
+        <option>Plano Medio Corto (Medium Close-Up)</option>
+        <option>Plano Medio (Medium Shot)</option>
+        <option>Plano Americano (Cowboy Shot)</option>
+        <option>Plano Entero (Full Shot)</option>
+        <option>Plano General (Long Shot)</option>
+        <option>Gran Plano General (Extreme Long Shot)</option>
+      </select>
+      <label for="anguloCamara">Ángulo de cámara:</label>
+      <select id="anguloCamara">
+        <option value="">(Ninguno)</option>
+        <option>Frontal (Eye-level)</option>
+        <option>Picado (High-angle)</option>
+        <option>Contrapicado (Low-angle)</option>
+        <option>Cenital (Bird's-eye view)</option>
+        <option>Nadir (Worm's-eye view)</option>
+        <option>Holandés (Dutch angle)</option>
+        <option>Isométrico</option>
+      </select>
+    </fieldset>
+
+    <fieldset>
+      <legend>Lente</legend>
+      <label for="tipoLente">Elige lente:</label>
+      <select id="tipoLente">
+        <option value="">(Ninguno)</option>
+        <option>Estándar (50mm)</option>
+        <option>Gran Angular (24mm)</option>
+        <option>Ultra Gran Angular (16mm)</option>
+        <option>Teleobjetivo (100mm)</option>
+        <option>Super Teleobjetivo (300mm+)</option>
+        <option>Ojo de Pez (Fisheye)</option>
+        <option>Macro</option>
+        <option>Tilt-Shift</option>
+      </select>
+    </fieldset>
+
+    <fieldset>
+      <legend>Atmósfera</legend>
+      <label for="ambiente">Elige ambiente:</label>
+      <select id="ambiente">
+        <option value="">(Ninguno)</option>
+        <option>Alegre y Brillante</option>
+        <option>Misterioso y Oscuro</option>
+        <option>Sereno y Pacífico</option>
+        <option>Épico y Grandioso</option>
+        <option>Melancólico y Solitario</option>
+        <option>Caótico y Energético</option>
+        <option>Onírico y Etéreo</option>
+        <option>Terrorífico y Siniestro</option>
+        <option>Romántico y Delicado</option>
+        <option>Nostálgico y Vintage</option>
+      </select>
+    </fieldset>
+  </div>
+
+  <fieldset>
+    <legend>Iluminación General</legend>
+    <div class="row">
+      <div>
+        <label for="tipoLuz">Tipo de luz:</label>
+        <select id="tipoLuz">
+          <option value="">(Ninguno)</option>
+          <option>Estudio HDRI</option><option>Atardecer Dorado</option><option>Mediodía Luz Dura</option><option>Noche Neón</option>
+          <option>Nublado Softbox</option><option>Foco Volumétrico</option><option>Luz de Vela</option>
+          <option>Bioluminiscente</option><option>Luz de Borde (Rim light)</option><option>Contraste Dramático</option>
+          <option>Luz Lunar</option><option>Fluorescente Oficina</option><option>Cáusticos Subacuáticos</option><option>Luz Negra (UV)</option>
+          <option>Cinemática</option>
+        </select>
+      </div>
+      <div>
+        <label for="intensidadLuz">Intensidad de luz:</label>
+        <select id="intensidadLuz">
+          <option value="">(Ninguno)</option>
+          <option>Muy baja</option><option>Baja</option><option>Moderada</option><option>Media</option>
+          <option>Alta</option><option>Muy alta</option><option>Suave</option><option>Brillante</option>
+          <option>Extrema</option><option>Ambiental</option>
+        </select>
+      </div>
+      <div>
+        <label for="direccionLuz">Dirección de luz:</label>
+        <select id="direccionLuz">
+          <option value="">(Ninguno)</option>
+          <option>Superior Izquierda</option><option>Superior Derecha</option><option>Frontal</option><option>Trasera (Contraluz)</option>
+          <option>Inferior</option><option>Lateral Izquierda</option><option>Lateral Derecha</option><option>Angular Superior Izq.</option>
+          <option>Angular Superior Der.</option><option>Omnidireccional</option>
+        </select>
+      </div>
+    </div>
+    <label style="margin-top:1.5rem; font-size:0.95rem; font-weight:500; color:var(--label-color);">Efectos de Iluminación Adicionales:</label>
+    <div class="checkbox-grid" style="margin-top:0.5rem;">
+      <label><input type="checkbox" id="il_reflejos"> Reflejos</label>
+      <label><input type="checkbox" id="il_refracciones"> Refracciones</label>
+      <label><input type="checkbox" id="il_dispersion"> Dispersión</label>
+      <label><input type="checkbox" id="il_sombrasSuaves"> Sombras Suaves</label>
+      <label><input type="checkbox" id="il_sombrasDuras"> Sombras Duras</label>
+      <label><input type="checkbox" id="il_luzVolumetrica"> Luz Volumétrica</label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Esquema de Color</legend>
+    <div class="row">
+      <div>
+        <label for="paletaPrincipal">Paleta principal:</label>
+        <select id="paletaPrincipal">
+          <option value="">(Ninguno)</option>
+          <option>Monocromática</option>
+          <option>Análoga</option>
+          <option>Complementaria</option>
+          <option>Triádica</option>
+          <option>Tetrádica</option>
+          <option>Tonos Pastel</option>
+          <option>Colores Vibrantes</option>
+          <option>Tonos Tierra</option>
+          <option>Escala de Grises</option>
+          <option>Neón</option>
+        </select>
+      </div>
+      <div>
+        <label for="colorAcento1">Color de acento 1:</label>
+        <select id="colorAcento1">
+          <option value="">(Ninguno)</option>
+          <option>Dorado</option><option>Plateado</option><option>Rojo</option><option>Azul</option>
+          <option>Verde</option><option>Púrpura</option><option>Naranja</option><option>Blanco</option>
+          <option>Negro</option><option>Cian</option><option>Magenta</option><option>Amarillo</option>
+          <option>Turquesa</option><option>Lima</option><option>Índigo</option>
+        </select>
+      </div>
+      <div>
+        <label for="colorAcento2">Color de acento 2:</label>
+        <select id="colorAcento2">
+          <option value="">(Ninguno)</option>
+          <option>Dorado</option><option>Plateado</option><option>Rojo</option><option>Azul</option>
+          <option>Verde</option><option>Púrpura</option><option>Naranja</option><option>Blanco</option>
+          <option>Negro</option><option>Cian</option><option>Magenta</option><option>Amarillo</option>
+          <option>Turquesa</option><option>Lima</option><option>Índigo</option>
+        </select>
+      </div>
+      <div>
+        <label for="colorFondo">Color de fondo:</label>
+        <select id="colorFondo">
+          <option value="">(Ninguno)</option>
+          <option>Negro</option><option>Blanco</option><option>Gris</option><option>Azul Oscuro</option>
+          <option>Púrpura Oscuro</option><option>Rojo Profundo</option><option>Verde Profundo</option><option>Turquesa Profundo</option>
+          <option>Gradiente Oscuro</option><option>Gradiente Claro</option><option>Transparente</option><option>Beige</option>
+          <option>Cielo</option><option>Texturizado Sutil</option>
+        </select>
+      </div>
+    </div>
+  </fieldset>
+
+  <div class="row">
+    <fieldset>
+      <legend>Referencias Artísticas</legend>
+      <label for="artistasReferencia">Artistas o estilos (separados por coma):</label>
+      <textarea id="artistasReferencia" placeholder="Ej: Van Gogh, H.R. Giger, Studio Ghibli"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Detalle y Calidad</legend>
+      <label for="nivelDetalle">Nivel de detalle:</label>
+      <select id="nivelDetalle">
+        <option value="">(Ninguno)</option>
+        <option>Bajo / Simplificado</option>
+        <option>Medio / Equilibrado</option>
+        <option>Alto / Intrincado</option>
+        <option>Fotorrealista / Máximo Detalle</option>
+      </select>
+      <label for="calidadGeneral">Calidad general:</label>
+      <select id="calidadGeneral">
+        <option value="">(Ninguno)</option>
+        <option>Borrador rápido</option>
+        <option>Buena calidad</option>
+        <option>Alta calidad</option>
+        <option>Calidad de producción / Ultra alta</option>
+      </select>
+    </fieldset>
+  </div>
+
+  <fieldset>
+    <legend>Post-Procesamiento</legend>
+    <label style="margin-bottom:0.8rem;">Efectos (marca los que desees):</label>
+    <div class="checkbox-grid">
+      <label><input type="checkbox" id="pp_aberracionCromatica"> Aberración cromática</label>
+      <label><input type="checkbox" id="pp_resplandor" checked> Resplandor (Glow)</label>
+      <label><input type="checkbox" id="pp_altoContraste" checked> Alto contraste</label>
+      <label><input type="checkbox" id="pp_detallesNitidos" checked> Detalles nítidos</label>
+      <label><input type="checkbox" id="pp_bloom"> Bloom</label>
+      <label><input type="checkbox" id="pp_desenfoqueMovimiento"> Desenfoque movimiento</label>
+      <label><input type="checkbox" id="pp_profundidadCampo"> Profundidad de campo</label>
+      <label><input type="checkbox" id="pp_granoPelicula"> Grano de película</label>
+      <label><input type="checkbox" id="pp_gradacionColor"> Gradación de color</label>
+      <label><input type="checkbox" id="pp_vineta"> Viñeta</label>
+      <label><input type="checkbox" id="pp_destelloLente"> Destello de lente</label>
+      <label><input type="checkbox" id="pp_pixelizacion"> Pixelización</label>
+      <label><input type="checkbox" id="pp_efectoGlitch"> Efecto Glitch</label>
+      <label><input type="checkbox" id="pp_bordesSuaves"> Bordes Suaves</label>
+      <label><input type="checkbox" id="pp_hdr"> HDR Toning</label>
+    </div>
+  </fieldset>
+
+  <div class="row">
+    <fieldset>
+        <legend>Parámetros Técnicos</legend>
+            <div>
+                <label for="aspectRatio">Relación de aspecto:</label>
+                <div class="aspect-ratio-control">
+                    <select id="aspectRatio" onchange="actualizarPrevisualizacionAspectRatio(this.value)" style="flex-grow: 1;">
+                        <option value="">(Ninguno)</option>
+                        <option value="1:1">1:1 (Cuadrado)</option>
+                        <option value="16:9" selected>16:9 (Panorámico)</option>
+                        <option value="9:16">9:16 (Vertical)</option>
+                        <option value="4:3">4:3 (Estándar)</option>
+                        <option value="3:4">3:4 (Vertical)</option>
+                        <option value="3:2">3:2 (Fotografía)</option>
+                        <option value="2:3">2:3 (Vertical Foto)</option>
+                        <option value="21:9">21:9 (Cinemascope)</option>
+                        <option value="9:21">9:21 (Vertical Ultra)</option>
+                    </select>
+                    <div id="aspectRatioPreviewContainer">
+                        <div id="aspectRatioShape"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 1rem;">
+                <label for="semilla">Semilla (Seed): <small>(vacío o 0 para aleatorio)</small></label>
+                <input type="number" id="semilla" placeholder="0" min="0">
+            </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Prompt Negativo</legend>
+      <label for="promptNegativo">Elementos a evitar (separados por coma):</label>
+      <textarea id="promptNegativo" placeholder="Ej: mala anatomía, borroso, texto..."></textarea>
+    </fieldset>
+  </div>
+
+
+  <div class="btn-group">
+    <button type="button" onclick="generarPrompt()">Generar Prompt JSON</button>
+    <button type="button" onclick="copiarPrompt()">Copiar al Portapapeles</button>
+  </div>
+
+  <textarea id="output" placeholder="Tu prompt JSON aparecerá aquí…" readonly></textarea>
+</form>
+
+<script>
+function actualizarPrevisualizacionAspectRatio(valor) {
+    const shape = document.getElementById('aspectRatioShape');
+    const container = document.getElementById('aspectRatioPreviewContainer');
+    if (valor === "" || !container || !shape) {
+        if(shape) { shape.style.width = '0px'; shape.style.height = '0px'; }
+        return;
+    }
+    const containerWidth = container.offsetWidth || 50;
+    const containerHeight = container.offsetHeight || 50;
+    const baseSize = Math.min(containerWidth, containerHeight) - 8; /* Más padding visual */
+    let w, h;
+    switch(valor) {
+        case '16:9': w = baseSize; h = (baseSize * 9) / 16; break;
+        case '9:16': h = baseSize; w = (baseSize * 9) / 16; break;
+        case '4:3':  w = baseSize; h = (baseSize * 3) / 4;  break;
+        case '3:4':  h = baseSize; w = (baseSize * 3) / 4;  break;
+        case '3:2':  w = baseSize; h = (baseSize * 2) / 3;  break;
+        case '2:3':  h = baseSize; w = (baseSize * 2) / 3;  break;
+        case '21:9': w = baseSize; h = (baseSize * 9) / 21; break;
+        case '9:21': h = baseSize; w = (baseSize * 9) / 21; break;
+        case '1:1': default: w = baseSize * 0.95; h = baseSize * 0.95; break; /* Casi cuadrado completo */
+    }
+    shape.style.width = Math.max(4, w) + 'px'; /* Min visible width */
+    shape.style.height = Math.max(4, h) + 'px'; /* Min visible height */
+}
+function getSelectValOrNull(id) {
+    const element = document.getElementById(id);
+    return element && element.value !== "" ? element.value : null;
+}
+function getTextAreaValOrNull(id) {
+    const element = document.getElementById(id);
+    const value = element ? element.value.trim() : "";
+    return value !== "" ? value : null;
+}
+function getTextArrayOrNull(id) {
+    const value = getTextAreaValOrNull(id);
+    if (!value) return null;
+    const arr = value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+    return arr.length > 0 ? arr : null;
+}
+function getSeedVal() {
+    const element = document.getElementById("semilla");
+    const val = element ? element.value : "";
+    if (val === "" || val === null) return "aleatoria";
+    const num = parseInt(val, 10);
+    return isNaN(num) || num === 0 ? "aleatoria" : num;
+}
+function generarPrompt(){
+  const checked = id => {
+      const el = document.getElementById(id);
+      return el ? el.checked : false;
+  }
+  const colorAcento1 = getSelectValOrNull("colorAcento1");
+  const colorAcento2 = getSelectValOrNull("colorAcento2");
+  let destacadosStr = "";
+  if (colorAcento1 && colorAcento2) {
+      destacadosStr = `acentos brillantes de ${colorAcento1.toLowerCase()} y ${colorAcento2.toLowerCase()}`;
+  } else if (colorAcento1) {
+      destacadosStr = `acentos brillantes de ${colorAcento1.toLowerCase()}`;
+  } else if (colorAcento2) {
+      destacadosStr = `acentos brillantes de ${colorAcento2.toLowerCase()}`;
+  }
+  const json = {
+    descripcion_principal: getTextAreaValOrNull("sujetoPrincipal"),
+    estilo_artistico: getSelectValOrNull("estilo"),
+    material_predominante: getSelectValOrNull("material"),
+    textura_superficie: getSelectValOrNull("texturaSuperficie"),
+    composicion: {
+      tipo_plano: getSelectValOrNull("tipoPlano"),
+      angulo_camara: getSelectValOrNull("anguloCamara")
+    },
+    lente: {
+      tipo: getSelectValOrNull("tipoLente")
+    },
+    ambiente_atmosfera: getSelectValOrNull("ambiente"),
+    iluminacion: {
+      tipo: getSelectValOrNull("tipoLuz"),
+      intensidad: getSelectValOrNull("intensidadLuz"),
+      direccion: getSelectValOrNull("direccionLuz"),
+      efectos_adicionales: {
+        reflejos: checked("il_reflejos"),
+        refracciones: checked("il_refracciones"),
+        dispersion: checked("il_dispersion"),
+        sombras_suaves: checked("il_sombrasSuaves"),
+        sombras_duras: checked("il_sombrasDuras"),
+        luz_volumetrica: checked("il_luzVolumetrica")
+      }
+    },
+    esquema_color: {
+      paleta_principal: getSelectValOrNull("paletaPrincipal"),
+      acento1: colorAcento1,
+      acento2: colorAcento2,
+      fondo: getSelectValOrNull("colorFondo"),
+      destacados: destacadosStr || null,
+      luz_borde_color: "suave luz de borde reflectante"
+    },
+    referencias: {
+      artistas_o_estilos: getTextArrayOrNull("artistasReferencia")
+    },
+    detalle_y_calidad: {
+        nivel_detalle: getSelectValOrNull("nivelDetalle"),
+        calidad_general: getSelectValOrNull("calidadGeneral")
+    },
+    post_procesamiento: {
+      aberracion_cromatica: checked("pp_aberracionCromatica"),
+      resplandor: checked("pp_resplandor"),
+      alto_contraste: checked("pp_altoContraste"),
+      detalles_nitidos: checked("pp_detallesNitidos"),
+      bloom: checked("pp_bloom"),
+      desenfoque_movimiento: checked("pp_desenfoqueMovimiento"),
+      profundidad_de_campo: checked("pp_profundidadCampo"),
+      grano_pelicula: checked("pp_granoPelicula"),
+      gradacion_color: checked("pp_gradacionColor"),
+      vineta: checked("pp_vineta"),
+      destello_lente: checked("pp_destelloLente"),
+      pixelizacion: checked("pp_pixelizacion"),
+      efecto_glitch: checked("pp_efectoGlitch"),
+      bordes_suaves_antialiasing: checked("pp_bordesSuaves"),
+      hdr_toning: checked("pp_hdr")
+    },
+    parametros_tecnicos: {
+        relacion_aspecto: getSelectValOrNull("aspectRatio"),
+        semilla: getSeedVal()
+    },
+    prompt_negativo: getTextArrayOrNull("promptNegativo")
+  };
+  const promptTexto = "Retexturiza la imagen adjunta (o genera una nueva si no se adjunta) basándote en la siguiente configuración estética JSON:\n\n"
+                + JSON.stringify(json, null, 2);
+  document.getElementById("output").value = promptTexto;
+}
+function copiarPrompt(){
+  const out = document.getElementById("output");
+  if(!out.value){ alert("Primero genera el prompt 😊"); return; }
+  navigator.clipboard.writeText(out.value).then(()=> alert("¡Prompt copiado al portapapeles!"));
+}
+window.addEventListener('DOMContentLoaded', (event) => {
+    const aspectRatioSelect = document.getElementById('aspectRatio');
+    if (aspectRatioSelect) {
+        actualizarPrevisualizacionAspectRatio(aspectRatioSelect.value);
+    }
+});
+</script>
+</body>
+</html>
